@@ -16,13 +16,14 @@ dependencies {
     implementation(libs.ktor.server.status.pages)
     implementation(libs.ktor.server.call.logging)
     implementation(libs.ktor.server.cors)
+    implementation(libs.ktor.server.config.yaml)
     implementation(libs.ktor.serialization.json)
 
     // Kotlin
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.core)
 
-    // HTTP client (for the AI providers: LLM + image model)
+    // Gemini (stylist + image model) — called over its REST API with the Ktor client
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.content.negotiation)

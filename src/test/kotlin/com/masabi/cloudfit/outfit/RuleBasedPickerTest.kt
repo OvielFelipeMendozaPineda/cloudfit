@@ -7,9 +7,9 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 
-class OutfitStylistTest : StringSpec({
+class RuleBasedPickerTest : StringSpec({
 
-    val stylist = OutfitStylist()
+    val stylist = OutfitStylist(picker = RuleBasedPicker())
 
     fun clothe(id: String, category: ClothingCategory) =
         Clothe(id = id, category = category, imageUrl = "https://s3/$id.png")
@@ -38,5 +38,14 @@ class OutfitStylistTest : StringSpec({
         )
         outfit.clotheIds shouldContainAll listOf("d1", "s1")
         outfit.clotheIds.contains("t1") shouldBe false
+    }
+
+    "image stays pending with the no-op renderer" {
+        val outfit = stylist.compose(
+            event = Event(id = "e1", name = "brunch"),
+            wardrobe = listOf(clothe("s1", ClothingCategory.SHOES)),
+        )
+        outfit.imageStatus shouldBe com.masabi.cloudfit.shared.ImageStatus.PENDING
+        outfit.imageUrl shouldBe null
     }
 })
