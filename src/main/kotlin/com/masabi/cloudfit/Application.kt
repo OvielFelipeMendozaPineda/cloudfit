@@ -6,6 +6,7 @@ import com.masabi.cloudfit.clothes.clothesRoutes
 import com.masabi.cloudfit.config.CloudFitConfig
 import com.masabi.cloudfit.defaults.defaultsRoutes
 import com.masabi.cloudfit.outfit.outfitRoutes
+import com.masabi.cloudfit.tagger.taggerRoutes
 import com.masabi.cloudfit.uploads.uploadsRoutes
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
@@ -43,5 +44,6 @@ fun Application.module() {
     defaultsRoutes()
     removeBgRoutes(components.backgroundRemover, components.imageStore)
     uploadsRoutes(components.imageStore)
+    taggerRoutes(components.tagger)
     outfitRoutes(components.clothes, components.outfits, components.avatars, components.stylist)
 }
