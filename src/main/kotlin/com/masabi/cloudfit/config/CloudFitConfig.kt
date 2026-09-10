@@ -10,7 +10,7 @@ data class GeminiConfig(
     val taggerModel: String,
     val imageModel: String,
 ) {
-    /** True when an API key is present, so callers can decide to use Gemini vs. the offline path. */
+    /** True when an API key is present. The app requires this to run. */
     val configured: Boolean get() = apiKey.isNotBlank()
 }
 

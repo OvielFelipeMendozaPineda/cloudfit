@@ -2,10 +2,8 @@ package com.masabi.cloudfit
 
 import com.masabi.cloudfit.ai.GeminiClient
 import com.masabi.cloudfit.config.CloudFitConfig
-import com.masabi.cloudfit.outfit.FallbackGarmentPicker
 import com.masabi.cloudfit.outfit.GeminiGarmentPicker
 import com.masabi.cloudfit.outfit.OutfitStylist
-import com.masabi.cloudfit.outfit.RuleBasedPicker
 import com.masabi.cloudfit.wardrobe.ClosetRepository
 import com.masabi.cloudfit.wardrobe.EventRepository
 import com.masabi.cloudfit.wardrobe.InMemoryClosetRepository
@@ -23,16 +21,10 @@ class AppComponents(
 ) {
     companion object {
         fun from(config: CloudFitConfig): AppComponents {
-            val rules = RuleBasedPicker()
-            val picker = if (config.gemini.configured) {
-                // Real stylist, with the rules picker as a resilience fallback.
-                FallbackGarmentPicker(
-                    primary = GeminiGarmentPicker(GeminiClient(config.gemini), config.gemini.stylistModel),
-                    fallback = rules,
-                )
-            } else {
-                rules
+            require(config.gemini.configured) {
+                "GEMINI_API_KEY is not set — the app requires Gemini to run."
             }
+            val picker = GeminiGarmentPicker(GeminiClient(config.gemini), config.gemini.stylistModel)
 
             return AppComponents(
                 closet = InMemoryClosetRepository(),

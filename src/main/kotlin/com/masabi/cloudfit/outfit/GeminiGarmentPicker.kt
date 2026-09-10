@@ -14,8 +14,8 @@ import kotlinx.serialization.json.Json
  * chosen garment ids plus a one/two-sentence stylist note. We then **enforce valid ids** (drop any
  * id it invents that isn't in the closet) so the frontend never has to reconcile.
  *
- * Resilience is *not* this class's job — wrap it in [FallbackGarmentPicker] to fall back to rules
- * when the model is unavailable. On an empty/invalid result this throws so the decorator can react.
+ * On an empty/invalid result (or a network/model failure) this throws, so the caller sees a clear
+ * error instead of a silent bad outfit.
  */
 class GeminiGarmentPicker(
     private val model: TextModel,

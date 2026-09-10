@@ -45,25 +45,11 @@ class GeminiGarmentPickerTest : StringSpec({
         picker.pick(event, wardrobe).clotheIds shouldContainExactly listOf("t1", "s1")
     }
 
-    "throws when no valid ids remain, so the fallback decorator can react" {
+    "throws when no valid ids remain" {
         val picker = GeminiGarmentPicker(
             FakeTextModel("""{"clotheIds":["ghost"],"stylistNote":"x"}"""),
             "fake-model",
         )
         shouldThrowAny { picker.pick(event, wardrobe) }
-    }
-})
-
-class FallbackGarmentPickerTest : StringSpec({
-
-    val event = Event(id = "e1", name = "brunch")
-    val wardrobe = listOf(Clothe(id = "s1", category = ClothingCategory.SHOES, imageUrl = "https://s3/s1.png"))
-
-    "uses the fallback when the primary throws" {
-        val boom = object : GarmentPicker {
-            override suspend fun pick(event: Event, wardrobe: List<Clothe>): Pick = error("model down")
-        }
-        val picker = FallbackGarmentPicker(primary = boom, fallback = RuleBasedPicker())
-        picker.pick(event, wardrobe).clotheIds shouldContainExactly listOf("s1")
     }
 })

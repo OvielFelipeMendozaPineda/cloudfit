@@ -14,7 +14,7 @@ import java.util.UUID
  *
  * (STAGE 1, garment tagging on upload, is [GarmentTagger] — called from the closet flow, not here.)
  *
- * Both stages are injected so they can be swapped (real LLM / image model vs. offline fakes) and
+ * Both stages are injected so they can be swapped (real LLM / image model vs. test fakes) and
  * unit-tested without hitting any provider.
  */
 class OutfitStylist(
