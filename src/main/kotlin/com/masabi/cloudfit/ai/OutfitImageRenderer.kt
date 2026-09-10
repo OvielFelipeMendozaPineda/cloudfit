@@ -24,6 +24,10 @@ class OutfitImageRenderer(
                     val bytes = imageStore.get(avatarImageUrl)
                     add(Part(inlineData = InlineData(mimeOf(avatarImageUrl), Base64.getEncoder().encodeToString(bytes))))
                 }
+                clothes.forEach { c ->
+                    val bytes = imageStore.get(c.imageUrl)
+                    add(Part(inlineData = InlineData(mimeOf(c.imageUrl), Base64.getEncoder().encodeToString(bytes))))
+                }
                 add(Part(text = prompt(clothes, hasPerson = avatarImageUrl != null)))
             }
             val image = imageModel.generateImage(model, parts)
@@ -34,22 +38,24 @@ class OutfitImageRenderer(
         }
 
     private fun prompt(clothes: List<Clothe>, hasPerson: Boolean): String {
-        val pieces = clothes.joinToString("\n") { c ->
+        val firstClotheImageIndex = if (hasPerson) 2 else 1
+        val pieces = clothes.mapIndexed { i, c ->
             val desc = listOfNotNull(c.colour, c.pattern, c.description).joinToString(" ")
-            "- ${c.category.name.lowercase()}: ${desc.ifBlank { c.name ?: "clothe" }}"
-        }
+            "- ${c.category.name.lowercase()} (reference image ${firstClotheImageIndex + i}): ${desc.ifBlank { c.name ?: "clothe" }}"
+        }.joinToString("\n")
         val subject = if (hasPerson) {
-            "the person in the first image, keeping their face, body shape and skin tone"
+            "the exact person in the first image — same face, body shape, skin tone, and pose, unchanged"
         } else {
             "a person"
         }
         return """
-            Generate a full-body studio photograph of $subject wearing this outfit:
-            $pieces
+        Generate a full-body studio photograph of $subject wearing EXACTLY this outfit and nothing else, reproducing each garment exactly as shown in its reference image (same color, pattern, cut and design):
+        $pieces
 
-            Plain light grey studio background, even natural lighting, photorealistic,
-            full body head to feet, centred.
-        """.trimIndent()
+        Do not change the pose, face, or body from the reference image. Only replace the clothing.
+        Plain light grey studio background, even natural lighting, photorealistic,
+        full body head to feet, centred.
+    """.trimIndent()
     }
 
     private fun mimeOf(url: String): String = when {
