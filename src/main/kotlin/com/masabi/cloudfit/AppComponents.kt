@@ -12,11 +12,6 @@ import com.masabi.cloudfit.wardrobe.InMemoryClosetRepository
 import com.masabi.cloudfit.wardrobe.InMemoryEventRepository
 import java.nio.file.Path
 
-/**
- * Composition root: the one place that decides which concrete implementations to wire together.
- * Everything else depends on abstractions, so this is the only file that changes when we swap a
- * provider or a persistence backend.
- */
 class AppComponents(
     val closet: ClosetRepository,
     val events: EventRepository,
@@ -31,7 +26,6 @@ class AppComponents(
 
             val picker = GeminiGarmentPicker(gemini, config.gemini.stylistModel)
 
-            // Generate with Gemini, save to the local Downloads folder (swap the store for S3 later).
             val imageStore = LocalImageStore(Path.of(config.storage.resolvedDir))
             val renderer = GeminiImageRenderer(gemini, imageStore, config.gemini.imageModel)
 

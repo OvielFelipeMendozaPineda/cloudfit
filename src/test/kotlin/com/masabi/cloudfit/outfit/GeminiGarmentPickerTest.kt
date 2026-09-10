@@ -10,7 +10,6 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 
-/** Fake model: returns a canned response, so the picker is testable without hitting Gemini. */
 private class FakeTextModel(private val response: String) : TextModel {
     override suspend fun generate(model: String, systemPrompt: String, parts: List<Part>, asJson: Boolean) = response
 }

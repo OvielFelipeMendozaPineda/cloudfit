@@ -7,16 +7,6 @@ import com.masabi.cloudfit.shared.Event
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-/**
- * STAGE 2, for real — asks a [TextModel] (Gemini) to assemble an outfit from the user's wardrobe.
- *
- * The model receives the event + the full wardrobe inventory (as structured text) and returns the
- * chosen garment ids plus a one/two-sentence stylist note. We then **enforce valid ids** (drop any
- * id it invents that isn't in the closet) so the frontend never has to reconcile.
- *
- * On an empty/invalid result (or a network/model failure) this throws, so the caller sees a clear
- * error instead of a silent bad outfit.
- */
 class GeminiGarmentPicker(
     private val model: TextModel,
     private val modelName: String,
@@ -35,7 +25,6 @@ class GeminiGarmentPicker(
         )
         val parsed = json.decodeFromString<GeminiPick>(raw)
 
-        // Valid-ID enforcement: keep only ids that actually exist in this closet, in order.
         val validIds = wardrobe.map { it.id }.toSet()
         val clotheIds = parsed.clotheIds.filter { it in validIds }.distinct()
         check(clotheIds.isNotEmpty()) { "model returned no valid garment ids" }

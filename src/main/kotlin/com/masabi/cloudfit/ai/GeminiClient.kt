@@ -15,12 +15,6 @@ import java.util.Base64
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-/**
- * [TextModel] + [ImageModel] backed by the Gemini REST API (Google Generative Language).
- *
- * Gemini is the single AI provider for cloud-fit: text reasoning (outfit assembly), vision
- * (garment tagging) and image generation all go through here.
- */
 class GeminiClient(
     private val config: GeminiConfig,
 ) : TextModel, ImageModel {
@@ -76,8 +70,6 @@ class GeminiClient(
             mimeType = image.mimeType,
         )
     }
-
-    // ---- Wire format ----
 
     @Serializable
     private data class Content(

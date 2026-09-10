@@ -6,17 +6,6 @@ import com.masabi.cloudfit.shared.ImageStatus
 import com.masabi.cloudfit.shared.Outfit
 import java.util.UUID
 
-/**
- * The AI brain of cloud-fit (Felipe's scope). Orchestrates the pipeline:
- *
- *  STAGE 2  [GarmentPicker]  — pick garments that suit the event and combine well.
- *  STAGE 3  [ImageRenderer]  — render the avatar wearing them (decoupled; may stay PENDING).
- *
- * (STAGE 1, garment tagging on upload, is [GarmentTagger] — called from the closet flow, not here.)
- *
- * Both stages are injected so they can be swapped (real LLM / image model vs. test fakes) and
- * unit-tested without hitting any provider.
- */
 class OutfitStylist(
     private val picker: GarmentPicker,
     private val renderer: ImageRenderer = NoopImageRenderer(),

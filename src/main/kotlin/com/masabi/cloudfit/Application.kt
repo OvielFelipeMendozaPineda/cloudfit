@@ -12,7 +12,6 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
 import kotlinx.serialization.json.Json
 
-// Server host/port come from application.yaml (ktor.deployment); EngineMain reads it.
 fun main(args: Array<String>) = EngineMain.main(args)
 
 fun Application.module() {
@@ -24,7 +23,7 @@ fun Application.module() {
     }
     install(CallLogging)
     install(CORS) {
-        anyHost() // hackathon: let the front (Silvia) call from anywhere
+        anyHost()
         allowHeader(HttpHeaders.ContentType)
     }
 

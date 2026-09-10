@@ -5,14 +5,9 @@ import com.masabi.cloudfit.shared.Event
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
-/**
- * Persistence seams. The in-memory implementations keep the demo runnable with zero infra;
- * Samuel swaps them for RDS/DynamoDB-backed ones without touching the routes.
- */
 interface ClosetRepository {
     fun all(): List<Clothe>
     fun get(id: String): Clothe?
-    /** Stores the garment, assigning an id when it is blank, and returns the stored copy. */
     fun save(clothe: Clothe): Clothe
 }
 

@@ -2,7 +2,6 @@ package com.masabi.cloudfit.config
 
 import io.ktor.server.config.ApplicationConfig
 
-/** Gemini settings — the single AI provider for stylist, tagger and image generation. */
 data class GeminiConfig(
     val apiKey: String,
     val baseUrl: String,
@@ -10,20 +9,16 @@ data class GeminiConfig(
     val taggerModel: String,
     val imageModel: String,
 ) {
-    /** True when an API key is present. The app requires this to run. */
     val configured: Boolean get() = apiKey.isNotBlank()
 }
 
-/** Where generated images are saved. Blank [dir] means the user's Downloads folder. */
 data class StorageConfig(
     val dir: String,
 ) {
-    /** The resolved directory, defaulting to ~/Downloads when [dir] is blank. */
     val resolvedDir: String
         get() = dir.ifBlank { "${System.getProperty("user.home")}/Downloads" }
 }
 
-/** All app configuration, loaded once from `application.yaml` and passed around as one object. */
 data class CloudFitConfig(
     val gemini: GeminiConfig,
     val storage: StorageConfig,
