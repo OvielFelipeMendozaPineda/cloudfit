@@ -1,7 +1,11 @@
 package com.masabi.cloudfit
 
+import com.masabi.cloudfit.avatar.avatarRoutes
+import com.masabi.cloudfit.bg.removeBgRoutes
+import com.masabi.cloudfit.clothes.clothesRoutes
 import com.masabi.cloudfit.config.CloudFitConfig
-import com.masabi.cloudfit.wardrobe.wardrobeRoutes
+import com.masabi.cloudfit.defaults.defaultsRoutes
+import com.masabi.cloudfit.outfit.outfitRoutes
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -10,6 +14,9 @@ import io.ktor.server.netty.EngineMain
 import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
+import io.ktor.server.response.respond
+import io.ktor.server.routing.get
+import io.ktor.server.routing.routing
 import kotlinx.serialization.json.Json
 
 fun main(args: Array<String>) = EngineMain.main(args)
@@ -27,5 +34,12 @@ fun Application.module() {
         allowHeader(HttpHeaders.ContentType)
     }
 
-    wardrobeRoutes(components.closet, components.events, components.stylist)
+    routing {
+        get("/health") { call.respond(mapOf("status" to "ok")) }
+    }
+    clothesRoutes(components.clothes)
+    avatarRoutes(components.avatars)
+    defaultsRoutes()
+    removeBgRoutes()
+    outfitRoutes(components.clothes, components.outfits, components.avatars, components.stylist)
 }
