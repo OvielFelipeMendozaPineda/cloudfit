@@ -2,7 +2,9 @@ package com.masabi.cloudfit
 
 import com.masabi.cloudfit.ai.GeminiClient
 import com.masabi.cloudfit.config.CloudFitConfig
+import com.masabi.cloudfit.outfit.GarmentTagger
 import com.masabi.cloudfit.outfit.GeminiGarmentPicker
+import com.masabi.cloudfit.outfit.GeminiGarmentTagger
 import com.masabi.cloudfit.outfit.GeminiImageRenderer
 import com.masabi.cloudfit.outfit.OutfitStylist
 import com.masabi.cloudfit.storage.LocalImageStore
@@ -16,6 +18,7 @@ class AppComponents(
     val closet: ClosetRepository,
     val events: EventRepository,
     val stylist: OutfitStylist,
+    val tagger: GarmentTagger,
 ) {
     companion object {
         fun from(config: CloudFitConfig): AppComponents {
@@ -25,6 +28,7 @@ class AppComponents(
             val gemini = GeminiClient(config.gemini)
 
             val picker = GeminiGarmentPicker(gemini, config.gemini.stylistModel)
+            val tagger = GeminiGarmentTagger(gemini, config.gemini.taggerModel)
 
             val imageStore = LocalImageStore(Path.of(config.storage.resolvedDir))
             val renderer = GeminiImageRenderer(gemini, imageStore, config.gemini.imageModel)
@@ -33,6 +37,7 @@ class AppComponents(
                 closet = InMemoryClosetRepository(),
                 events = InMemoryEventRepository(),
                 stylist = OutfitStylist(picker, renderer),
+                tagger = tagger,
             )
         }
     }

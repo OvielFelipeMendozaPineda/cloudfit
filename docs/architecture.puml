@@ -1,0 +1,117 @@
+@startuml cloud-fit
+title cloud-fit — hecho (verde) vs. falta conectar (naranja)
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam defaultFontName "Helvetica"
+!define DONE #C8E6C9
+!define TODO #FFE0B2
+!define EXT  #E3F2FD
+
+legend top right
+  |= color |= estado |
+  |<back:#C8E6C9>   </back>| hecho |
+  |<back:#FFE0B2>   </back>| falta conectar |
+  |<back:#E3F2FD>   </back>| externo (Gemini) |
+endlegend
+
+actor "Silvia\n(frontend)" as FE #FFE0B2
+
+package "HTTP API — WardrobeRoutes" {
+  component "GET/POST /clothes" as C_clothes DONE
+  component "GET/POST /events" as C_events DONE
+  component "POST /events/{id}/outfit\n(rápido + lento juntos)" as C_outfit DONE
+  component "POST /items\n(subir + etiquetar)" as C_items TODO
+  component "POST /looks {prompt}\n(rápido)" as C_looks TODO
+  component "POST /looks/{id}/image\n(lento, aparte)" as C_looksImg TODO
+  component "GET /looks/{id}\n(polling imageStatus)" as C_lookGet TODO
+  component "POST /me/photo" as C_photo TODO
+  component "POST /auth, GET /catalog" as C_auth TODO
+}
+
+package "Composición y config" {
+  component "Application (Ktor)\n+ AppComponents" as APP DONE
+  component "CloudFitConfig\n(application.yaml)" as CFG DONE
+}
+
+package "Pipeline IA (Felipe)" {
+  component "OutfitStylist\n(orquesta)" as STY DONE
+  component "Stage 2 · GeminiGarmentPicker\n(elige prendas)" as PICK DONE
+  component "Stage 3 · GeminiImageRenderer\n(genera imagen)" as REND DONE
+  component "Stage 1 · GarmentTagger\n(etiqueta foto)" as TAG TODO
+}
+
+package "Modelo generativo" {
+  component "GeminiClient\n(TextModel + ImageModel)" as GEM DONE
+  cloud "Gemini API" as GAPI EXT
+}
+
+package "Persistencia (Samuel)" {
+  component "ClosetRepository\n(in-memory)" as CLOSET DONE
+  component "EventRepository\n(in-memory)" as EVREPO DONE
+  component "LookRepository" as LOOKREPO TODO
+  database "RDS (MySQL)" as RDS TODO
+}
+
+package "Almacenamiento de imágenes (Samuel)" {
+  component "ImageStore" as ISTORE DONE
+  component "LocalImageStore\n(~/Downloads)" as LOCAL DONE
+  component "S3ImageStore" as S3 TODO
+}
+
+FE ..> C_clothes
+FE ..> C_looks
+FE ..> C_items
+FE ..> C_photo
+FE ..> C_auth
+
+APP --> CFG
+APP --> STY
+APP --> CLOSET
+APP --> EVREPO
+APP --> ISTORE
+
+C_outfit --> STY
+C_clothes --> CLOSET
+C_events --> EVREPO
+
+STY --> PICK
+STY --> REND
+PICK --> GEM
+REND --> GEM
+REND --> ISTORE
+TAG --> GEM
+C_items --> TAG
+C_items ..> ISTORE : sube raw
+GEM --> GAPI
+
+ISTORE <|.. LOCAL
+ISTORE <|.. S3
+CLOSET ..> RDS : swap
+EVREPO ..> RDS : swap
+LOOKREPO ..> RDS
+
+C_looks --> STY
+C_looksImg --> REND
+C_lookGet --> LOOKREPO
+STY ..> LOOKREPO : guardar look
+
+note bottom of TAG
+  Falta: subir foto real,
+  Gemini visión -> tags,
+  crear Clothe etiquetada
+end note
+
+note bottom of REND
+  Hecho: genera sobre la
+  persona (avatarUrl del store).
+  Falta: adjuntar fotos de prendas
+end note
+
+note bottom of C_outfit
+  Hoy hace rápido+lento junto.
+  Falta separarlo en /looks
+  y /looks/{id}/image
+end note
+
+@enduml
