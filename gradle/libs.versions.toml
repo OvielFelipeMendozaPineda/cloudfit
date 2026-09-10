@@ -5,6 +5,9 @@ serialization = "1.8.0"
 coroutines = "1.10.1"
 logback = "1.5.13"
 kotest = "5.9.1"
+exposed = "0.55.0"
+mysql-connector = "8.4.0"
+aws-sdk = "2.28.11"
 
 [libraries]
 # Ktor server
@@ -28,6 +31,14 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 
 # Logging
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+
+# Database (RDS MySQL)
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+mysql-connector = { module = "com.mysql:mysql-connector-j", version.ref = "mysql-connector" }
+
+# Storage (S3)
+aws-s3 = { module = "software.amazon.awssdk:s3", version.ref = "aws-sdk" }
 
 # Testing
 ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }

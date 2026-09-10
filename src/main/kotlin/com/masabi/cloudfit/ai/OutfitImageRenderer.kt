@@ -1,7 +1,7 @@
 package com.masabi.cloudfit.ai
 
 import com.masabi.cloudfit.clothes.Clothe
-import com.masabi.cloudfit.storage.LocalImageStore
+import com.masabi.cloudfit.storage.ImageStore
 import java.util.Base64
 import org.slf4j.LoggerFactory
 
@@ -12,7 +12,7 @@ data class RenderResult(
 
 class OutfitImageRenderer(
     private val imageModel: ImageModel,
-    private val imageStore: LocalImageStore,
+    private val imageStore: ImageStore,
     private val model: String,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)

@@ -12,20 +12,35 @@ data class GeminiConfig(
     val configured: Boolean get() = apiKey.isNotBlank()
 }
 
-data class StorageConfig(
-    val dir: String,
+data class S3Config(
+    val bucket: String,
+    val region: String,
 ) {
-    val resolvedDir: String
-        get() = dir.ifBlank { "${System.getProperty("user.home")}/Downloads" }
+    val configured: Boolean get() = bucket.isNotBlank() && region.isNotBlank()
+}
+
+data class DatabaseConfig(
+    val host: String,
+    val port: String,
+    val name: String,
+    val user: String,
+    val password: String,
+) {
+    val configured: Boolean get() = host.isNotBlank() && user.isNotBlank() && password.isNotBlank()
+
+    val jdbcUrl: String get() = "jdbc:mysql://$host:$port/$name?sslMode=REQUIRED&connectTimeout=5000"
 }
 
 data class CloudFitConfig(
     val gemini: GeminiConfig,
-    val storage: StorageConfig,
+    val s3: S3Config,
+    val database: DatabaseConfig,
 ) {
     companion object {
         fun from(config: ApplicationConfig): CloudFitConfig {
             val gemini = config.config("cloudfit.gemini")
+            val database = config.config("cloudfit.database")
+            val s3 = config.config("cloudfit.s3")
             return CloudFitConfig(
                 gemini = GeminiConfig(
                     apiKey = gemini.property("apiKey").getString(),
@@ -34,8 +49,16 @@ data class CloudFitConfig(
                     taggerModel = gemini.property("taggerModel").getString(),
                     imageModel = gemini.property("imageModel").getString(),
                 ),
-                storage = StorageConfig(
-                    dir = config.property("cloudfit.storage.dir").getString(),
+                s3 = S3Config(
+                    bucket = s3.property("bucket").getString(),
+                    region = s3.property("region").getString(),
+                ),
+                database = DatabaseConfig(
+                    host = database.property("host").getString(),
+                    port = database.property("port").getString(),
+                    name = database.property("name").getString(),
+                    user = database.property("user").getString(),
+                    password = database.property("password").getString(),
                 ),
             )
         }

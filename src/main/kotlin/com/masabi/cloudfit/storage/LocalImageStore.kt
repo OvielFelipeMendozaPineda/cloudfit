@@ -5,13 +5,13 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.util.UUID
 
-class LocalImageStore(private val dir: Path) {
+class LocalImageStore(private val dir: Path) : ImageStore {
 
     init {
         Files.createDirectories(dir)
     }
 
-    fun put(bytes: ByteArray, contentType: String): String {
+    override fun put(bytes: ByteArray, contentType: String): String {
         val ext = when (contentType) {
             "image/jpeg" -> "jpg"
             "image/webp" -> "webp"
@@ -22,5 +22,5 @@ class LocalImageStore(private val dir: Path) {
         return file.toUri().toString()
     }
 
-    fun get(url: String): ByteArray = Files.readAllBytes(Path.of(URI.create(url)))
+    override fun get(url: String): ByteArray = Files.readAllBytes(Path.of(URI.create(url)))
 }
