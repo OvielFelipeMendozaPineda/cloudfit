@@ -31,10 +31,17 @@ data class DatabaseConfig(
     val jdbcUrl: String get() = "jdbc:mysql://$host:$port/$name?sslMode=REQUIRED&connectTimeout=5000"
 }
 
+data class RemoveBgConfig(
+    val key: String,
+) {
+    val configured: Boolean get() = key.isNotBlank()
+}
+
 data class CloudFitConfig(
     val gemini: GeminiConfig,
     val s3: S3Config,
     val database: DatabaseConfig,
+    val removeBg: RemoveBgConfig,
 ) {
     companion object {
         fun from(config: ApplicationConfig): CloudFitConfig {
@@ -59,6 +66,9 @@ data class CloudFitConfig(
                     name = database.property("name").getString(),
                     user = database.property("user").getString(),
                     password = database.property("password").getString(),
+                ),
+                removeBg = RemoveBgConfig(
+                    key = config.property("cloudfit.removeBg.key").getString(),
                 ),
             )
         }

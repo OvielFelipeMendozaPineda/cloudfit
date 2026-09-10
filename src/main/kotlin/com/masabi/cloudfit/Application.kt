@@ -41,7 +41,7 @@ fun Application.module() {
     clothesRoutes(components.clothes)
     avatarRoutes(components.avatars)
     defaultsRoutes()
-    removeBgRoutes()
+    removeBgRoutes(components.backgroundRemover, components.imageStore)
     uploadsRoutes(components.imageStore)
     outfitRoutes(components.clothes, components.outfits, components.avatars, components.stylist)
 }
