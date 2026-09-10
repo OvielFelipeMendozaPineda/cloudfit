@@ -1,10 +1,8 @@
-package com.masabi.cloudfit.outfit
+package com.masabi.cloudfit.ai
 
-import com.masabi.cloudfit.ai.Part
-import com.masabi.cloudfit.ai.TextModel
-import com.masabi.cloudfit.shared.ClothingCategory
-import com.masabi.cloudfit.shared.Formality
-import com.masabi.cloudfit.shared.Warmth
+import com.masabi.cloudfit.clothes.ClothingCategory
+import com.masabi.cloudfit.clothes.Formality
+import com.masabi.cloudfit.clothes.Warmth
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -13,10 +11,10 @@ private class CannedTextModel(private val response: String) : TextModel {
     override suspend fun generate(model: String, systemPrompt: String, parts: List<Part>, asJson: Boolean) = response
 }
 
-class GeminiGarmentTaggerTest : StringSpec({
+class ClotheTaggerTest : StringSpec({
 
     "maps the model json into typed tags" {
-        val tagger = GeminiGarmentTagger(
+        val tagger = ClotheTagger(
             CannedTextModel(
                 """{"name":"Dark wash jeans","category":"bottom","color":"dark blue",
                    "pattern":"solid","formality":"smart casual","warmth":"mid",
@@ -36,7 +34,7 @@ class GeminiGarmentTaggerTest : StringSpec({
     }
 
     "maps accessory to the ACCESSORIES category" {
-        val tagger = GeminiGarmentTagger(
+        val tagger = ClotheTagger(
             CannedTextModel("""{"category":"accessory","color":"tan"}"""),
             "fake-model",
         )
@@ -44,7 +42,7 @@ class GeminiGarmentTaggerTest : StringSpec({
     }
 
     "throws on an unknown category" {
-        val tagger = GeminiGarmentTagger(CannedTextModel("""{"category":"spaceship"}"""), "fake-model")
+        val tagger = ClotheTagger(CannedTextModel("""{"category":"spaceship"}"""), "fake-model")
         shouldThrowAny { tagger.tag("x".toByteArray(), "image/png") }
     }
 })

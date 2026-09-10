@@ -1,18 +1,15 @@
-package com.masabi.cloudfit.outfit
+package com.masabi.cloudfit.ai
 
-import com.masabi.cloudfit.ai.InlineData
-import com.masabi.cloudfit.ai.Part
-import com.masabi.cloudfit.ai.TextModel
-import com.masabi.cloudfit.shared.ClothingCategory
-import com.masabi.cloudfit.shared.Formality
-import com.masabi.cloudfit.shared.Warmth
+import com.masabi.cloudfit.clothes.ClothingCategory
+import com.masabi.cloudfit.clothes.Formality
+import com.masabi.cloudfit.clothes.Warmth
 import java.util.Base64
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 @Serializable
-data class GarmentTags(
+data class ClotheTags(
     val name: String?,
     val category: ClothingCategory,
     val colour: String?,
@@ -22,23 +19,18 @@ data class GarmentTags(
     val description: String?,
 )
 
-interface GarmentTagger {
-    suspend fun tag(imageBytes: ByteArray, mimeType: String): GarmentTags
-}
-
-class GeminiGarmentTagger(
+class ClotheTagger(
     private val model: TextModel,
     private val modelName: String,
-) : GarmentTagger {
-
+) {
     private val json = Json { ignoreUnknownKeys = true }
 
-    override suspend fun tag(imageBytes: ByteArray, mimeType: String): GarmentTags {
+    suspend fun tag(imageBytes: ByteArray, mimeType: String): ClotheTags {
         val part = Part(inlineData = InlineData(mimeType, Base64.getEncoder().encodeToString(imageBytes)))
         val raw = model.generate(modelName, SYSTEM_PROMPT, listOf(part), asJson = true)
         val wire = json.decodeFromString<WireTags>(raw)
 
-        return GarmentTags(
+        return ClotheTags(
             name = wire.name,
             category = parseCategory(wire.category),
             colour = wire.color,
@@ -86,7 +78,7 @@ class GeminiGarmentTagger(
 
     private companion object {
         const val SYSTEM_PROMPT = """
-You are a garment tagger for a virtual wardrobe app.
+You are a clothe tagger for a virtual wardrobe app.
 You receive one photo of a single clothing item, shoe, or accessory.
 
 Return ONLY a JSON object. No markdown, no commentary.
