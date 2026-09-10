@@ -55,6 +55,7 @@ class OutfitImageRenderer(
         Do not change the pose, face, or body from the reference image. Only replace the clothing.
         Plain light grey studio background, even natural lighting, photorealistic,
         full body head to feet, centred.
+        Output a 1024x1536 image, 2:3 portrait aspect ratio, sharp focus, no cropping of the head or feet.
     """.trimIndent()
     }
 

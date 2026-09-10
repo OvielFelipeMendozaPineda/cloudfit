@@ -9,6 +9,7 @@ import com.masabi.cloudfit.outfit.outfitRoutes
 import com.masabi.cloudfit.tagger.taggerRoutes
 import com.masabi.cloudfit.uploads.uploadsRoutes
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -34,6 +35,8 @@ fun Application.module() {
     install(CORS) {
         anyHost()
         allowHeader(HttpHeaders.ContentType)
+        allowMethod(HttpMethod.Put)
+        allowMethod(HttpMethod.Delete)
     }
 
     routing {
