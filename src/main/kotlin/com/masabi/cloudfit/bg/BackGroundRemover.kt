@@ -7,8 +7,10 @@ import io.ktor.client.request.forms.formData
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
+import io.ktor.http.isSuccess
 
 fun interface BackGroundRemover {
     suspend fun remove(image: ByteArray): ByteArray
@@ -21,15 +23,20 @@ class DefaultBackGroundRemover(
 ) : BackGroundRemover {
 
     override suspend fun remove(image: ByteArray): ByteArray {
-        return client.post(endpoint) {
+        val response = client.post(endpoint) {
             header("X-Api-Key", apiKey)
             setBody(MultiPartFormDataContent(formData {
                 append("image_file", image, Headers.build {
                     append(HttpHeaders.ContentType, "image/jpeg")
+                    append(HttpHeaders.ContentDisposition, "filename=\"garment.jpg\"")
                 })
                 append("size", "auto")
             }))
-        }.body()
+        }
+        if (!response.status.isSuccess()) {
+            error("remove.bg ${response.status}: ${response.bodyAsText()}")
+        }
+        return response.body()
     }
 }
 
