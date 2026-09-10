@@ -6,12 +6,16 @@ import com.masabi.cloudfit.ai.GeminiClient
 import com.masabi.cloudfit.ai.OutfitImageRenderer
 import com.masabi.cloudfit.ai.OutfitStylist
 import com.masabi.cloudfit.avatar.AvatarRepository
+import com.masabi.cloudfit.bg.BackGroundRemover
+import com.masabi.cloudfit.bg.DefaultBackGroundRemover
 import com.masabi.cloudfit.clothes.ClothesRepository
 import com.masabi.cloudfit.config.CloudFitConfig
 import com.masabi.cloudfit.db.Db
 import com.masabi.cloudfit.outfit.OutfitsRepository
 import com.masabi.cloudfit.storage.ImageStore
 import com.masabi.cloudfit.storage.S3ImageStore
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
 
 class AppComponents(
     val clothes: ClothesRepository,
@@ -20,6 +24,7 @@ class AppComponents(
     val stylist: OutfitStylist,
     val tagger: ClotheTagger,
     val imageStore: ImageStore,
+    val backgroundRemover: BackGroundRemover?,
 ) {
     companion object {
         fun from(config: CloudFitConfig): AppComponents {
@@ -42,6 +47,12 @@ class AppComponents(
             val imageStore = S3ImageStore(config.s3)
             val renderer = OutfitImageRenderer(gemini, imageStore, config.gemini.imageModel)
 
+            val backgroundRemover = if (config.removeBg.configured) {
+                DefaultBackGroundRemover(config.removeBg.key, HttpClient(CIO))
+            } else {
+                null
+            }
+
             return AppComponents(
                 clothes = ClothesRepository(),
                 avatars = AvatarRepository(),
@@ -49,6 +60,7 @@ class AppComponents(
                 stylist = OutfitStylist(picker, renderer),
                 tagger = tagger,
                 imageStore = imageStore,
+                backgroundRemover = backgroundRemover,
             )
         }
     }

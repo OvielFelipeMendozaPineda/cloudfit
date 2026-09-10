@@ -16,6 +16,8 @@ cloudfit:
     name: "$DB_NAME:cloudfit"
     user: "$DB_USER:"
     password: "$DB_PASSWORD:"
+  removeBg:
+    key: "$REMOVE_BG_API_KEY:"
   gemini:
     # Values come from env vars; the part after ':' is the default when the var is unset.
     apiKey: "$GEMINI_API_KEY:"

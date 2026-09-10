@@ -1,5 +1,6 @@
 package com.masabi.cloudfit.bg
 
+import com.masabi.cloudfit.storage.ImageStore
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.request.receive
@@ -11,12 +12,23 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class RemoveBgRequest(val photoUrl: String)
 
-fun Application.removeBgRoutes() {
+@Serializable
+data class RemoveBgResponse(val photoUrl: String)
+
+fun Application.removeBgRoutes(remover: BackGroundRemover?, imageStore: ImageStore) {
     routing {
         post("/remove-bg") {
-            call.receive<RemoveBgRequest>()
-            // TODO paso 3: llamar a remove.bg (REMOVE_BG_API_KEY), subir el resultado y devolver su photoUrl.
-            call.respond(HttpStatusCode.NotImplemented, mapOf("error" to "remove-bg pending step 3 (remove.bg API key)"))
+            val request = call.receive<RemoveBgRequest>()
+            if (remover == null) {
+                call.respond(HttpStatusCode.NotImplemented, mapOf("error" to "REMOVE_BG_API_KEY not set"))
+                return@post
+            }
+            val controller = BackGroundRemoverController(remover)
+            val input = imageStore.get(request.photoUrl)
+            controller.handle(input).fold(
+                onSuccess = { png -> call.respond(RemoveBgResponse(imageStore.put(png, "image/png"))) },
+                onFailure = { call.respond(HttpStatusCode.BadGateway, mapOf("error" to (it.message ?: "remove-bg failed"))) },
+            )
         }
     }
 }
