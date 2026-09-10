@@ -7,9 +7,15 @@ ktor:
       - com.masabi.cloudfit.ApplicationKt.module
 
 cloudfit:
-  storage:
-    # Where generated look images are saved. Blank = the user's Downloads folder.
-    dir: "$CLOUDFIT_IMAGE_DIR:"
+  s3:
+    bucket: "$AWS_S3_BUCKET:"
+    region: "$AWS_REGION:us-east-2"
+  database:
+    host: "$DB_HOST:"
+    port: "$DB_PORT:3306"
+    name: "$DB_NAME:cloudfit"
+    user: "$DB_USER:"
+    password: "$DB_PASSWORD:"
   gemini:
     # Values come from env vars; the part after ':' is the default when the var is unset.
     apiKey: "$GEMINI_API_KEY:"
