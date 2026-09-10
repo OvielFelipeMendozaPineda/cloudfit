@@ -40,26 +40,22 @@ private fun UpdateBuilder<*>.fromClothe(clothe: Clothe) {
     this[ClothesTable.id] = clothe.id
     this[ClothesTable.category] = clothe.category.name
     this[ClothesTable.imageUrl] = clothe.imageUrl
-    this[ClothesTable.sourceImageUrl] = clothe.sourceImageUrl
     this[ClothesTable.name] = clothe.name
     this[ClothesTable.colour] = clothe.colour
     this[ClothesTable.pattern] = clothe.pattern
     this[ClothesTable.formality] = clothe.formality?.name
     this[ClothesTable.warmth] = clothe.warmth?.name
     this[ClothesTable.description] = clothe.description
-    this[ClothesTable.sourceType] = clothe.source.name
 }
 
 private fun ResultRow.toClothe() = Clothe(
     id = this[ClothesTable.id],
     category = ClothingCategory.valueOf(this[ClothesTable.category]),
     imageUrl = this[ClothesTable.imageUrl],
-    sourceImageUrl = this[ClothesTable.sourceImageUrl],
     name = this[ClothesTable.name],
     colour = this[ClothesTable.colour],
     pattern = this[ClothesTable.pattern],
     formality = this[ClothesTable.formality]?.let { Formality.valueOf(it) },
     warmth = this[ClothesTable.warmth]?.let { Warmth.valueOf(it) },
     description = this[ClothesTable.description],
-    source = ClotheSource.valueOf(this[ClothesTable.sourceType]),
 )
