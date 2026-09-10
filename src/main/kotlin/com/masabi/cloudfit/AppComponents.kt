@@ -3,11 +3,14 @@ package com.masabi.cloudfit
 import com.masabi.cloudfit.ai.GeminiClient
 import com.masabi.cloudfit.config.CloudFitConfig
 import com.masabi.cloudfit.outfit.GeminiGarmentPicker
+import com.masabi.cloudfit.outfit.GeminiImageRenderer
 import com.masabi.cloudfit.outfit.OutfitStylist
+import com.masabi.cloudfit.storage.LocalImageStore
 import com.masabi.cloudfit.wardrobe.ClosetRepository
 import com.masabi.cloudfit.wardrobe.EventRepository
 import com.masabi.cloudfit.wardrobe.InMemoryClosetRepository
 import com.masabi.cloudfit.wardrobe.InMemoryEventRepository
+import java.nio.file.Path
 
 /**
  * Composition root: the one place that decides which concrete implementations to wire together.
@@ -24,12 +27,18 @@ class AppComponents(
             require(config.gemini.configured) {
                 "GEMINI_API_KEY is not set — the app requires Gemini to run."
             }
-            val picker = GeminiGarmentPicker(GeminiClient(config.gemini), config.gemini.stylistModel)
+            val gemini = GeminiClient(config.gemini)
+
+            val picker = GeminiGarmentPicker(gemini, config.gemini.stylistModel)
+
+            // Generate with Gemini, save to the local Downloads folder (swap the store for S3 later).
+            val imageStore = LocalImageStore(Path.of(config.storage.resolvedDir))
+            val renderer = GeminiImageRenderer(gemini, imageStore, config.gemini.imageModel)
 
             return AppComponents(
                 closet = InMemoryClosetRepository(),
                 events = InMemoryEventRepository(),
-                stylist = OutfitStylist(picker),
+                stylist = OutfitStylist(picker, renderer),
             )
         }
     }

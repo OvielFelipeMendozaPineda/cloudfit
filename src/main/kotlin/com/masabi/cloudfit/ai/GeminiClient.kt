@@ -11,18 +11,19 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
+import java.util.Base64
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 /**
- * [TextModel] backed by the Gemini REST API (Google Generative Language).
+ * [TextModel] + [ImageModel] backed by the Gemini REST API (Google Generative Language).
  *
  * Gemini is the single AI provider for cloud-fit: text reasoning (outfit assembly), vision
  * (garment tagging) and image generation all go through here.
  */
 class GeminiClient(
     private val config: GeminiConfig,
-) : TextModel {
+) : TextModel, ImageModel {
 
     private val http = HttpClient(CIO) {
         install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
@@ -54,6 +55,28 @@ class GeminiClient(
             .joinToString("\n")
     }
 
+    override suspend fun generateImage(model: String, parts: List<Part>): GeneratedImage {
+        val request = GenerateContentRequest(
+            contents = listOf(Content(role = "user", parts = parts)),
+            generationConfig = GenerationConfig(responseModalities = listOf("TEXT", "IMAGE")),
+        )
+        val response: GenerateContentResponse =
+            http.post("${config.baseUrl}/models/$model:generateContent") {
+                header("x-goog-api-key", config.apiKey)
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }.body()
+
+        val image = response.candidates
+            .firstOrNull()?.content?.parts.orEmpty()
+            .firstNotNullOfOrNull { it.inlineData }
+            ?: error("Gemini returned no image data")
+        return GeneratedImage(
+            bytes = Base64.getDecoder().decode(image.data),
+            mimeType = image.mimeType,
+        )
+    }
+
     // ---- Wire format ----
 
     @Serializable
@@ -66,6 +89,7 @@ class GeminiClient(
     private data class GenerationConfig(
         val responseMimeType: String? = null,
         val temperature: Double? = null,
+        val responseModalities: List<String>? = null,
     )
 
     @Serializable

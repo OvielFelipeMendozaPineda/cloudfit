@@ -7,10 +7,13 @@ ktor:
       - com.masabi.cloudfit.ApplicationKt.module
 
 cloudfit:
+  storage:
+    # Where generated look images are saved. Blank = the user's Downloads folder.
+    dir: "$CLOUDFIT_IMAGE_DIR:"
   gemini:
     # Values come from env vars; the part after ':' is the default when the var is unset.
     apiKey: "$GEMINI_API_KEY:"
     baseUrl: "https://generativelanguage.googleapis.com/v1beta"
     stylistModel: "$CLOUDFIT_STYLIST_MODEL:gemini-3.6-flash"
     taggerModel: "$CLOUDFIT_TAGGER_MODEL:gemini-3.6-flash"
-    imageModel: "$CLOUDFIT_IMAGE_MODEL:gemini-3.6-flash-image"
+    imageModel: "$CLOUDFIT_IMAGE_MODEL:gemini-3.1-flash-image"
