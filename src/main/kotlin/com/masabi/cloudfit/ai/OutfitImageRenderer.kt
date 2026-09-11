@@ -31,7 +31,8 @@ class OutfitImageRenderer(
                 add(Part(text = prompt(clothes, hasPerson = avatarImageUrl != null)))
             }
             val image = imageModel.generateImage(model, parts)
-            RenderResult(imageUrl = imageStore.put(image.bytes, image.mimeType))
+            val dataUrl = "data:${image.mimeType};base64,${Base64.getEncoder().encodeToString(image.bytes)}"
+            RenderResult(imageUrl = dataUrl)
         } catch (e: Exception) {
             log.warn("Image generation failed ({})", e.message)
             RenderResult(imageUrl = null, failed = true)

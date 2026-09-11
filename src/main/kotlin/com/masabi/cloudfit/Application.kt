@@ -48,5 +48,5 @@ fun Application.module() {
     removeBgRoutes(components.backgroundRemover, components.imageStore)
     uploadsRoutes(components.imageStore)
     taggerRoutes(components.tagger)
-    outfitRoutes(components.clothes, components.outfits, components.avatars, components.stylist)
+    outfitRoutes(components.clothes, components.outfits, components.avatars, components.stylist, components.imageStore)
 }
