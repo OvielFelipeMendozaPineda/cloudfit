@@ -4,24 +4,96 @@ ktor:
     host: "0.0.0.0"
   application:
     modules:
-      - com.masabi.cloudfit.ApplicationKt.module
+      - app.cloudfit.ApplicationKt.module
 
+# Every value comes from an env var; the part after ':' is the default when the var is unset.
 cloudfit:
-  s3:
-    bucket: "$AWS_S3_BUCKET:"
-    region: "$AWS_REGION:us-east-2"
+  env: "$APP_ENV:prod"
+  appUrl: "$APP_URL:http://localhost:5173"
+  trustProxy: "$TRUST_PROXY:true"
+  rateLimit:
+    authPerMinute: "$RATE_LIMIT_AUTH_PER_MINUTE:20"
+    looksPerMinute: "$RATE_LIMIT_LOOKS_PER_MINUTE:6"
+
   database:
-    host: "$DB_HOST:"
-    port: "$DB_PORT:3306"
+    host: "$DB_HOST:localhost"
+    port: "$DB_PORT:5432"
     name: "$DB_NAME:cloudfit"
-    user: "$DB_USER:"
+    user: "$DB_USER:cloudfit"
     password: "$DB_PASSWORD:"
-  removeBg:
-    key: "$REMOVE_BG_API_KEY:"
+    maxPoolSize: "$DB_MAX_POOL_SIZE:10"
+
+  auth:
+    jwtSecret: "$JWT_SECRET:"
+    jwtKeyId: "$JWT_KEY_ID:v1"
+    cookieSecure: "$COOKIE_SECURE:true"
+    googleClientId: "$GOOGLE_CLIENT_ID:"
+    appleClientId: "$APPLE_CLIENT_ID:"
+    appleRedirectUri: "$APPLE_REDIRECT_URI:"
+
+  mail:
+    smtpHost: "$SMTP_HOST:"
+    smtpPort: "$SMTP_PORT:587"
+    smtpUser: "$SMTP_USER:"
+    smtpPassword: "$SMTP_PASSWORD:"
+    smtpStartTls: "$SMTP_STARTTLS:true"
+    from: "$MAIL_FROM:CloudFit <no-reply@cloudfit.app>"
+
   gemini:
-    # Values come from env vars; the part after ':' is the default when the var is unset.
     apiKey: "$GEMINI_API_KEY:"
-    baseUrl: "https://generativelanguage.googleapis.com/v1beta"
+    baseUrl: "$GEMINI_BASE_URL:https://generativelanguage.googleapis.com/v1beta"
     stylistModel: "$CLOUDFIT_STYLIST_MODEL:gemini-3.6-flash"
     taggerModel: "$CLOUDFIT_TAGGER_MODEL:gemini-3.6-flash"
     imageModel: "$CLOUDFIT_IMAGE_MODEL:gemini-3.1-flash-image"
+
+  images:
+    store: "$IMAGE_STORE:local"
+    localDir: "$IMAGES_DIR:./data/images"
+    s3Bucket: "$AWS_S3_BUCKET:"
+    s3Region: "$AWS_REGION:us-east-2"
+
+  removeBg:
+    apiKey: "$REMOVE_BG_API_KEY:"
+
+  wardrobe:
+    freeMaxClothes: "$FREE_MAX_CLOTHES:30"
+    maxUploadBytes: "$MAX_UPLOAD_BYTES:10485760"
+
+  billing:
+    # empty → fake when APP_ENV=dev, live otherwise
+    mode: "$PAYMENTS_MODE:"
+    signupBonus: "$SIGNUP_BONUS_CREDITS:5"
+    adsDailyMax: "$ADS_DAILY_MAX:3"
+    # PLACEHOLDER prices (minor units: USD cents, COP pesos x100). Review before going live.
+    packs:
+      - code: "PACK_10"
+        credits: "10"
+        usd: "499"
+        cop: "1990000"
+      - code: "PACK_30"
+        credits: "30"
+        usd: "1199"
+        cop: "4990000"
+      - code: "PACK_80"
+        credits: "80"
+        usd: "2499"
+        cop: "9990000"
+    plans:
+      - code: "PLUS"
+        monthlyCredits: "40"
+        usd: "799"
+        features: ["NO_ADS", "UNLIMITED_CLOTHES"]
+      - code: "PRO"
+        monthlyCredits: "150"
+        usd: "1999"
+        features: ["NO_ADS", "UNLIMITED_CLOTHES"]
+    stripe:
+      secretKey: "$STRIPE_SECRET_KEY:"
+      webhookSecret: "$STRIPE_WEBHOOK_SECRET:"
+      pricePlus: "$STRIPE_PRICE_PLUS:"
+      pricePro: "$STRIPE_PRICE_PRO:"
+    wompi:
+      publicKey: "$WOMPI_PUBLIC_KEY:"
+      integritySecret: "$WOMPI_INTEGRITY_SECRET:"
+      eventsSecret: "$WOMPI_EVENTS_SECRET:"
+      environment: "$WOMPI_ENV:sandbox"
