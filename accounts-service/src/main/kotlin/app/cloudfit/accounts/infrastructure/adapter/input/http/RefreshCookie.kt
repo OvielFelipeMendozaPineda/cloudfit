@@ -2,6 +2,7 @@ package app.cloudfit.accounts.infrastructure.adapter.input.http
 
 import app.cloudfit.accounts.domain.Session
 import io.ktor.http.Cookie
+import io.ktor.http.CookieEncoding
 import io.ktor.server.application.ApplicationCall
 import io.ktor.util.date.GMTDate
 import java.time.Duration
@@ -12,7 +13,7 @@ data class RefreshCookieSettings(
     val path: String = "/api/v1/auth",
 )
 
-fun ApplicationCall.readRefreshCookie(settings: RefreshCookieSettings): String? = request.cookies[settings.name]
+fun ApplicationCall.readRefreshCookie(settings: RefreshCookieSettings): String? = request.cookies[settings.name, CookieEncoding.RAW]
 
 fun ApplicationCall.writeRefreshCookie(settings: RefreshCookieSettings, session: Session) {
     val maxAge = Duration.between(java.time.Instant.now(), session.refreshExpiresAt).seconds.coerceAtLeast(0)
@@ -24,6 +25,7 @@ fun ApplicationCall.writeRefreshCookie(settings: RefreshCookieSettings, session:
             path = settings.path,
             secure = settings.secure,
             httpOnly = true,
+            encoding = CookieEncoding.RAW,
             extensions = mapOf("SameSite" to "Lax"),
         ),
     )
@@ -39,6 +41,7 @@ fun ApplicationCall.clearRefreshCookie(settings: RefreshCookieSettings) {
             path = settings.path,
             secure = settings.secure,
             httpOnly = true,
+            encoding = CookieEncoding.RAW,
             extensions = mapOf("SameSite" to "Lax"),
         ),
     )
