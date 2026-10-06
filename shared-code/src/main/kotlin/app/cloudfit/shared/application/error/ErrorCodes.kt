@@ -1,0 +1,12 @@
+package app.cloudfit.shared.application.error
+
+object ErrorCodes {
+    const val INVALID_CREDENTIALS = "INVALID_CREDENTIALS"
+    const val INVALID_TOKEN = "INVALID_TOKEN"
+    const val EMAIL_NOT_VERIFIED = "EMAIL_NOT_VERIFIED"
+    const val WARDROBE_LIMIT_REACHED = "WARDROBE_LIMIT_REACHED"
+    const val WARDROBE_INCOMPLETE = "WARDROBE_INCOMPLETE"
+    const val AI_UNAVAILABLE = "AI_UNAVAILABLE"
+    const val UPSTREAM_ERROR = "UPSTREAM_ERROR"
+    const val INTERNAL_ERROR = "INTERNAL_ERROR"
+}
