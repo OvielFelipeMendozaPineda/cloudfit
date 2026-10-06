@@ -83,10 +83,33 @@ class PasswordAuthFlowTest : StringSpec({
         val second = kit.refresh.execute(first.refreshToken)
         second.refreshToken shouldNotBe first.refreshToken
         val third = kit.refresh.execute(second.refreshToken)
+        kit.clock.advance(Duration.ofSeconds(16))
 
         shouldThrow<UnauthorizedException> { kit.refresh.execute(first.refreshToken) }.code shouldBe ErrorCodes.INVALID_TOKEN
         shouldThrow<UnauthorizedException> { kit.refresh.execute(third.refreshToken) }
         kit.refreshTokens.tokens.values.all { it.revokedAt != null } shouldBe true
+    }
+
+    "a concurrent refresh within the grace window gets its own session instead of revoking the family" {
+        val kit = AccountsTestKit()
+        val first = kit.registerAndVerify()
+
+        val tabA = kit.refresh.execute(first.refreshToken)
+        kit.clock.advance(Duration.ofSeconds(5))
+        val tabB = kit.refresh.execute(first.refreshToken)
+
+        tabB.refreshToken shouldNotBe tabA.refreshToken
+        kit.refresh.execute(tabA.refreshToken).refreshToken shouldNotBe ""
+        kit.refresh.execute(tabB.refreshToken).refreshToken shouldNotBe ""
+    }
+
+    "reuse within the grace window after logout is still rejected" {
+        val kit = AccountsTestKit()
+        val first = kit.registerAndVerify()
+        val second = kit.refresh.execute(first.refreshToken)
+        kit.logout.execute(second.refreshToken)
+
+        shouldThrow<UnauthorizedException> { kit.refresh.execute(first.refreshToken) }
     }
 
     "refresh rejects missing, unknown and expired tokens" {

@@ -56,7 +56,7 @@ class AccountsTestKit(
     val verifyEmail = VerifyEmailService(emailTokens, users, bonus, sessions, tx, clock)
     val login = LoginService(users, hasher, sessions)
     val socialLogin = SocialLoginService(google, apple, users, identities, bonus, sessions, tx, clock)
-    val refresh = RefreshSessionService(refreshTokens, users, sessions, tx, clock)
+    val refresh = RefreshSessionService(refreshTokens, users, sessions, tx, clock, policy)
     val logout = LogoutService(refreshTokens, tx, clock)
     val forgotPassword = ForgotPasswordService(users, tokenFactory, mailer, policy)
     val resetPassword = ResetPasswordService(emailTokens, users, refreshTokens, hasher, bonus, tx, clock)

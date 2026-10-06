@@ -84,7 +84,7 @@ class AccountsComponents(
         resendVerification = ResendVerificationService(users, tokenFactory, mailer, config.policy),
         login = LoginService(users, hasher, sessions),
         socialLogin = SocialLoginService(google, apple, users, identities, welcomeBonus, sessions, tx, clock),
-        refresh = RefreshSessionService(refreshTokens, users, sessions, tx, clock),
+        refresh = RefreshSessionService(refreshTokens, users, sessions, tx, clock, config.policy),
         logout = LogoutService(refreshTokens, tx, clock),
         forgotPassword = ForgotPasswordService(users, tokenFactory, mailer, config.policy),
         resetPassword = ResetPasswordService(emailTokens, users, refreshTokens, hasher, welcomeBonus, tx, clock),

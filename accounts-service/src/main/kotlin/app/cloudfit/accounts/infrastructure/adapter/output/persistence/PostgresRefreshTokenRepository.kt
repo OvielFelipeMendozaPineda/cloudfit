@@ -62,6 +62,18 @@ class PostgresRefreshTokenRepository : RefreshTokenRepository {
         }
     }
 
+    override suspend fun isFamilyActive(familyId: UUID, now: Instant): Boolean =
+        dbQuery {
+            RefreshTokensTable.selectAll()
+                .where {
+                    (RefreshTokensTable.familyId eq familyId) and
+                        RefreshTokensTable.revokedAt.isNull() and
+                        (RefreshTokensTable.expiresAt greater now.toUtc())
+                }
+                .limit(1)
+                .any()
+        }
+
     override suspend fun revokeAllForUser(userId: UUID, at: Instant) {
         dbQuery {
             RefreshTokensTable.update({ (RefreshTokensTable.userId eq userId) and RefreshTokensTable.revokedAt.isNull() }) {

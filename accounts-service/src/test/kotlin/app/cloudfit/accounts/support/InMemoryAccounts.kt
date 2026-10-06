@@ -74,6 +74,9 @@ class InMemoryRefreshTokenRepository : RefreshTokenRepository {
         tokens.replaceAll { _, t -> if (t.familyId == familyId && t.revokedAt == null) t.copy(revokedAt = at) else t }
     }
 
+    override suspend fun isFamilyActive(familyId: UUID, now: Instant): Boolean =
+        tokens.values.any { it.familyId == familyId && it.revokedAt == null && it.expiresAt.isAfter(now) }
+
     override suspend fun revokeAllForUser(userId: UUID, at: Instant) {
         tokens.replaceAll { _, t -> if (t.userId == userId && t.revokedAt == null) t.copy(revokedAt = at) else t }
     }

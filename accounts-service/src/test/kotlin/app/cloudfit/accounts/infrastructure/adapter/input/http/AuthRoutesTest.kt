@@ -1,5 +1,6 @@
 package app.cloudfit.accounts.infrastructure.adapter.input.http
 
+import java.time.Duration
 import app.cloudfit.accounts.support.AccountsTestKit
 import app.cloudfit.shared.infrastructure.http.RateLimitSettings
 import app.cloudfit.shared.infrastructure.http.configureApiStatusPages
@@ -67,6 +68,7 @@ class AuthRoutesTest : StringSpec({
             }
             refreshed.status shouldBe HttpStatusCode.OK
             refreshed.bodyAsText() shouldContain "\"expiresIn\":900"
+            kit.clock.advance(Duration.ofSeconds(16))
 
             val reused = client.post("/api/v1/auth/refresh") {
                 header(HttpHeaders.Cookie, cookie)

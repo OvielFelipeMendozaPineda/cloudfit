@@ -13,5 +13,7 @@ interface RefreshTokenRepository {
 
     suspend fun revokeFamily(familyId: UUID, at: Instant)
 
+    suspend fun isFamilyActive(familyId: UUID, now: Instant): Boolean
+
     suspend fun revokeAllForUser(userId: UUID, at: Instant)
 }

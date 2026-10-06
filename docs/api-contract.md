@@ -46,7 +46,7 @@ Respuesta de sesión (`Session`):
 | POST | `/auth/login` | `{ email, password }` | 200 `Session` · 401 `INVALID_CREDENTIALS` · 403 `EMAIL_NOT_VERIFIED` |
 | POST | `/auth/google` | `{ idToken }` | 200 `Session` (crea cuenta si no existe, otorga bienvenida si es nueva) · 501 si no configurado |
 | POST | `/auth/apple` | `{ idToken, displayName? }` | 200 `Session` · 501 si no configurado |
-| POST | `/auth/refresh` | – (cookie) | 200 `Session` · 401 `INVALID_TOKEN` (rota cookie; reuso de un token viejo revoca toda la familia) |
+| POST | `/auth/refresh` | – (cookie) | 200 `Session` · 401 `INVALID_TOKEN` (rota cookie; reuso de un token viejo revoca toda la familia, salvo dentro de 15 s de su rotación con la familia activa — dos pestañas — que emite otra sesión) |
 | POST | `/auth/logout` | – (cookie) | 204, borra cookie |
 | POST | `/auth/forgot-password` | `{ email }` | 202 siempre |
 | POST | `/auth/reset-password` | `{ token, password }` | 204, revoca todas las sesiones |

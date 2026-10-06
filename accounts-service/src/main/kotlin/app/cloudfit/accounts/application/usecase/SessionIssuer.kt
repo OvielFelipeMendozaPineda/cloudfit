@@ -21,6 +21,8 @@ class SessionIssuer(
 
     suspend fun rotate(user: User, previous: RefreshToken): Session = issue(user, previous.familyId, previous)
 
+    suspend fun branch(user: User, familyId: UUID): Session = issue(user, familyId, previous = null)
+
     private suspend fun issue(user: User, familyId: UUID, previous: RefreshToken?): Session {
         val now = clock.now()
         val plain = OpaqueTokens.generate()
