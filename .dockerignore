@@ -1,0 +1,13 @@
+.env
+.env.*
+.git
+.gradle
+.idea
+.kotlin
+build
+**/build
+data
+docs
+*.log
+.DS_Store
+**/.DS_Store
