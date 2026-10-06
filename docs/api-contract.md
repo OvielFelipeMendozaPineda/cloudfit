@@ -168,3 +168,39 @@ Orden de consumo de créditos: `PLAN` → `FREE` → `REWARD` → `PACK`.
 ## Health
 
 `GET /health` (fuera de `/api/v1` y también en `/api/v1/health`) → `{ "status": "ok" }`.
+
+## Notas de implementación del back (2026-10-06)
+
+Precisiones sobre lo que el contrato dejaba abierto. Ninguna cambia rutas ni shapes existentes.
+
+**Auth**
+- `/auth/refresh` y `/auth/logout` sin `X-CloudFit-Client: web` → **403 `FORBIDDEN`**.
+- `/auth/verify-email` y `/auth/reset-password` con token inválido, usado o vencido → **401 `INVALID_TOKEN`**.
+  Tokens de email: verificación 24 h, reset 1 h, un solo uso.
+- `/auth/refresh` con 401 también borra la cookie (`Max-Age=0`).
+- Bodies de los 202: `register` y `resend-verification` → `{ "status": "VERIFY_EMAIL" }`; `forgot-password` → `{ "status": "CHECK_EMAIL" }`.
+- `/auth/google|apple` con token sin email → 400; si el email ya existe y el proveedor **no** lo marca verificado → 409 `CONFLICT`.
+- Rate limit `/auth/*`: 20 req/min por IP (configurable). `POST /looks`: 6 req/min por usuario.
+- `apple.redirectUri` por defecto: `${APP_URL}/auth/apple/callback` (configurable con `APPLE_REDIRECT_URI`).
+
+**Armario**
+- Uploads (`/uploads`, `/remove-bg`, `/tagger`): máx. 10 MB, `image/png|jpeg|webp|heic`; otro tipo o sin campo `file` → 400.
+- `/remove-bg` con fallo de remove.bg → 502 `UPSTREAM_ERROR`. `/tagger` con fallo de Gemini → 502 `AI_UNAVAILABLE`.
+- `DELETE /avatar` es idempotente (204 aunque no haya avatar).
+- `GET /default/avatars` → `[{ "photoUrl": "…" }]`.
+
+**Looks**
+- `failureCode` ∈ `AI_UNAVAILABLE | WARDROBE_INCOMPLETE | INTERRUPTED | INTERNAL_ERROR`
+  (`INTERRUPTED`: el proceso se cortó, p. ej. reinicio del server; se reembolsa).
+- `GET /looks` sin `saved` → todos los looks del usuario (máx. 50, más recientes primero).
+- `POST /looks/{id}/save` sobre un look que no está `READY` → 409 `CONFLICT`.
+- `DELETE /looks/{id}` de un look en curso reembolsa el crédito.
+- `event`: 1–200 caracteres.
+
+**Billing**
+- `GET /billing/ledger?limit=` acotado a 1–200 (default 50).
+- `POST /billing/checkout`: `productCode` desconocido o plan en COP → 400; plan con un plan activo → 409 `CONFLICT`;
+  `provider` opcional (`STRIPE|WOMPI`); en `PAYMENTS_MODE=fake` siempre `FAKE`.
+- `POST /billing/portal` sin cliente de Stripe → 404 `NOT_FOUND`; Stripe sin llaves → 501.
+- Webhooks: firma/checksum inválido → 400 `VALIDATION_ERROR`; secreto no configurado → 501; OK → 200 `{ "received": true }`.
+- `POST /ads/reward`: `placement` 1–64 caracteres.
